@@ -1,3 +1,5 @@
+# draggable
+
 [![View draggable on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/78739-draggable)
 
 A modern enhancement of `draggable.m` written by François Buffard. The design is a decorator for other graphics objects, making them draggable. The decorated objects behave transparently like the underlying objects, while adding functionality and properties associated with draggability. The original reason for this version was to provide compatibility with both the old Figure and Axes objects, as well as the new UIFigure and UIAxes objects. From there, it blossomed into a few bug-fixes for unusual corner-case behaviors and a couple of feature enhancements. The original may be found at the [MATLAB FileExchange page](https://www.mathworks.com/matlabcentral/fileexchange/4179-draggabl).
