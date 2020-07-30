@@ -1,67 +1,69 @@
-classdef Draggable < handle
+classdef draggable < handle
     %{
-This class is intended to be a modern enhancement of draggable.m written by
-Francois Buffard (https://www.mathworks.com/matlabcentral/fileexchange/4179-draggable). It functions as a decorator for other graphics objects, making
-them draggable. The original reason for this version is to be usable with both the old
-Figure and Axes objects, as well as the new UIFigure and UIAxes objects.
+    This class is intended to be a modern enhancement of draggable.m written by
+    Francois Buffard. It functions as a decorator for other graphics objects,
+    making them draggable. The original reason for this version is to be usable
+    with both the old Figure and Axes objects, as well as the new UIFigure and
+    UIAxes objects.
 
-A few features and notes are listed
-below. Backwards compatibility has been maintained. Replacing draggable() by
-Draggable() should work as expected. Turning the draggable functionality off
-and restoring the original functionality of the graphics objects requires
-deletion of the Draggable decorator.
-    
-The justification for using a decorator design is to have the Draggable behave
-like the original graphics object, without the need for
-storing app data in parent objects, which is potentially fragile if other objects modify the parents. It keeps
-private information private, and in my opinion provides a cleaner, more
-encapsulated design.
-    
-WARNING! To maintain portability between Figure and UIFigure objects, do not use
-gca() and gcf() in callbacks.
-    
-    
-Notes:
-    
- - movefcn has been renamed on_move_callback
-    
- - endfcn has been renamed on_release_callback
-    
- - internal data is no longer stored using set/getappdata(), so the caller is
-    responsible for storing their own draggable objects.
-    
- - input "off" has been removed, and that functionality moved to object
-    destructor. Simply delete the Draggable object the way you would with any
-    graphics object to restore previous behavior.
-    
-    
-Features:
+    Original: (https://www.mathworks.com/matlabcentral/fileexchange/4179-draggable)
 
- - choice of mouse button: users can make an object draggable only by a
-    specific mouse button, or by any button. The default is the old behavior of
-    any button. To use multiple buttons, create multiple objects.
-    
- - on_click_callback: because on_move_callback is called frequently, this
+    A few features and notes are listed below. Backwards compatibility has been
+    maintained. Turning the draggable functionality off and restoring the
+    original functionality of the graphics objects requires deletion of the
+    draggable decorator.
+
+    The justification for using a decorator design is to have the draggable
+    behave like the original graphics object, without the need for storing app
+    data in parent objects, which is potentially fragile if other objects modify
+    the parents. It keeps private information private, and in my opinion
+    provides a cleaner, more encapsulated design.
+
+    WARNING! To maintain portability between Figure and UIFigure objects, do not
+    use gca() and gcf() in callbacks.
+
+
+    Notes:
+
+    - movefcn has been renamed on_move_callback
+
+    - endfcn has been renamed on_release_callback
+
+    - internal data is no longer stored using set/getappdata(), so the caller is
+      responsible for storing their own draggable objects.
+
+    - input "off" has been removed, and that functionality moved to object
+      destructor. Simply delete the draggable object the way you would with any
+      graphics object to restore previous behavior.
+
+
+    Features:
+
+    - choice of mouse button: users can make an object draggable only by a
+      specific mouse button, or by any button. The default is the old behavior
+      of any button. To use multiple buttons, create multiple objects.
+
+    - on_click_callback: because on_move_callback is called frequently, this
 function was added so that expensive singular operations only need to be
-    called once when the object is first clicked.
-    
- - clearer interface for constraints: slope, xlim and ylim are delineated
-    independently as settable properties.
-    
- - behaves transparently like underlying graphics object for properties not
-    named in this class.
-    
- - backward compatibility: replacing draggable(inputs) with Draggable(inputs)
-    should work as expected. Other new features are not accessible this way.
-    Simply assign values to the appropriate properties to use them.
+      called once when the object is first clicked.
 
-(C) Copyright 2004-2020
-François Bouffard
-fbouffard@gmail.com
+    - clearer interface for constraints: slope, xlim and ylim are delineated
+      independently as settable properties.
 
-(C) Copyright 2020
-William Warriner
-wwarriner@gmail.com
+    - behaves transparently like underlying graphics object for properties not
+      named in this class.
+
+    - backward compatibility: No change should be required to the initial call.
+      Other new features are not accessible this way.   Simply assign values to
+      the appropriate properties to use them.
+
+    (C) Copyright 2004-2020
+    FranÃ§ois Bouffard
+    fbouffard@gmail.com
+
+    (C) Copyright 2020
+    William Warriner
+    wwarriner@gmail.com
     %}
     properties
         button(1,1) string = "any"
@@ -92,7 +94,7 @@ wwarriner@gmail.com
     end
     
     methods
-        function obj = Draggable(g, varargin)
+        function obj = draggable(g, varargin)
             args = obj.parse(g, varargin{:});
             
             obj.figh = args.figh;
@@ -143,7 +145,7 @@ wwarriner@gmail.com
         
         function obj = subsasgn(obj, s, varargin)
             if isequal(obj, [])
-                obj = Draggable.empty;
+                obj = draggable.empty;
             end
             switch s(1).type
                 case '.'
@@ -263,19 +265,20 @@ wwarriner@gmail.com
                     delta_point = delta_point * Pv;
             end
             
-            % Computing new position.
-            % What we want is actually a bit complex: we want the object to adopt the
-            % new position, unless it gets out of range. If it gets out of range in a
-            % direction, we want it to stick to the limit in that direction. Also, if
-            % the object is out of range at the beginning of the movement, we want to
-            % be able to move it back into range; movement must then be allowed.
+            % Computing new position. What we want is actually a bit complex: we
+            % want the object to adopt the new position, unless it gets out of
+            % range. If it gets out of range in a direction, we want it to stick
+            % to the limit in that direction. Also, if the object is out of
+            % range at the beginning of the movement, we want to be able to move
+            % it back into range; movement must then be allowed.
             
-            % For debugging purposes only; setting debug to 1 shows range, extents,
-            % dpt, corrected dpt and in-range status of the object in the command
-            % window. Note: this will clear the command window.
+            % For debugging purposes only; setting debug to 1 shows range,
+            % extents, dpt, corrected dpt and in-range status of the object in
+            % the command window. Note: this will clear the command window.
             initial_delta_point = delta_point;
             
-            % Computing object extent in the [x y w h] format before and after moving
+            % Computing object extent in the [x y w h] format before and after
+            % moving
             initial_extent = obj.start_extent;
             new_extent = initial_extent + [delta_point 0 0];
             
@@ -288,11 +291,11 @@ wwarriner@gmail.com
             % but the movement won't get restricted if the object was out of
             % range to begin with.
             %
-            % We use if/ends and no elseif's because once an object hits a range limit,
-            % it is still free to move along the other axis, and another range limit
-            % could be hit aftwards. That is, except for diagonal constraints, in
-            % which a first limit hit must completely lock the object until the mouse
-            % is inside the range.
+            % We use if/ends and no elseif's because once an object hits a range
+            % limit, it is still free to move along the other axis, and another
+            % range limit could be hit aftwards. That is, except for diagonal
+            % constraints, in which a first limit hit must completely lock the
+            % object until the mouse is inside the range.
             
             % In-line correction functions to dpt due to range violations
             xminc = @(dpt) [xrange(1) - initial_extent(1) dpt(Y)];
@@ -433,9 +436,8 @@ wwarriner@gmail.com
         end
         
         function inrange = is_inside_range(extent, range)
-            % extent is [x y w h]
-            % range is [xmin xmax ymin ymax]
-            % inrange is a 4x1 vector of boolean values corresponding to range limits
+            % extent is [x y w h], range is [xmin xmax ymin ymax], inrange is a
+            % 4x1 vector of boolean values corresponding to range limits
             inrange = [...
                 extent(1) >= range(1) ...
                 extent(1) + extent(3) <= range(2) ...
@@ -445,10 +447,10 @@ wwarriner@gmail.com
         end
         
         function args = parse(g, varargin)
-            constraint = Draggable.NO_CONSTRAINT;
+            constraint = draggable.NO_CONSTRAINT;
             p = [];
             on_move_callback = @(varargin)[];
-            on_release_callback = @(varargin)[];       % added by SMB (see 'for k' loop below)
+            on_release_callback = @(varargin)[];
             end_of_input = false;
             
             figh = gcbf;
@@ -463,7 +465,7 @@ wwarriner@gmail.com
             for k = 1:nargin - 1
                 current_arg = varargin{k};
                 if isa(current_arg, "function_handle") && end_of_input
-                    on_release_callback = current_arg; % added by SMB
+                    on_release_callback = current_arg;
                     % movefcn can still be a later argument
                     end_of_input = false;
                 elseif isa(current_arg, "function_handle")
@@ -491,8 +493,8 @@ wwarriner@gmail.com
             xlim = [];
             ylim = [];
             switch lower(constraint)
-                case {"n", Draggable.NO_CONSTRAINT}
-                    constraint = Draggable.NO_CONSTRAINT;
+                case {"n", draggable.NO_CONSTRAINT}
+                    constraint = draggable.NO_CONSTRAINT;
                     if isempty(p)
                         % ok
                     elseif length(p) == 4
@@ -501,8 +503,8 @@ wwarriner@gmail.com
                     else
                         assert(false);
                     end
-                case {"h", Draggable.HORIZONTAL_CONSTRAINT}
-                    constraint = Draggable.HORIZONTAL_CONSTRAINT;
+                case {"h", draggable.HORIZONTAL_CONSTRAINT}
+                    constraint = draggable.HORIZONTAL_CONSTRAINT;
                     if isempty(p)
                         % ok
                     elseif length(p) == 2 || length(p) == 4
@@ -510,8 +512,8 @@ wwarriner@gmail.com
                     else
                         assert(false);
                     end
-                case {"v", Draggable.VERTICAL_CONSTRAINT}
-                    constraint = Draggable.VERTICAL_CONSTRAINT;
+                case {"v", draggable.VERTICAL_CONSTRAINT}
+                    constraint = draggable.VERTICAL_CONSTRAINT;
                     if isempty(p)
                         % ok
                     elseif length(p) == 2
@@ -521,8 +523,8 @@ wwarriner@gmail.com
                     else
                         assert(false);
                     end
-                case {"d", "l", "locked", Draggable.DIAGONAL_CONSTRAINT}
-                    constraint = Draggable.DIAGONAL_CONSTRAINT;
+                case {"d", "l", "locked", draggable.DIAGONAL_CONSTRAINT}
+                    constraint = draggable.DIAGONAL_CONSTRAINT;
                     if isempty(p)
                         slope = 1;
                     elseif length(p) == 1
@@ -548,4 +550,3 @@ wwarriner@gmail.com
         DEBUG = false;
     end
 end
-

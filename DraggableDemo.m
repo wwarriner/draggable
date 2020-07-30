@@ -1,8 +1,8 @@
 function DraggableDemo(demotitle, mode)
 %{
-This function is a demo for the draggable.m function and should be
-distributed along with it. It basically presents some of draggable.m"s
-features: users of draggable.m are invited to read dragdemo"s source.
+This function is a demo for the draggable.m function and should be distributed
+along with it. It basically presents some of draggable.m"s features: users of
+draggable.m are invited to read dragdemo"s source.
 
 >> dragdemo(demotitle, mode);
 
@@ -10,28 +10,24 @@ runs the demo which title is contained in the string demotitle. Mode determines
 whether to use axes() and figure() or uiaxes() and uifigure().
 
 
-demotitle: 
+demotitle:
 
-"crosshair" - A draggable crosshair is drawn; its movements are
-              limited so that its center never leaves the axes. This
-              is the default demo.
+"crosshair" - A draggable crosshair is drawn; its movements are limited so that
+    its center never leaves the axes. This is the default demo.
 
-"dragtest"      Some graphical objects (such as rectangles, lines,
-              patches and plots) are drawn, following various
-              constraints. For more details, please read the comments
-              in the source code.
+"dragtest" - Some graphical objects (such as rectangles, lines, patches and
+    plots) are drawn, following various constraints. For more details, please
+    read the comments in the source code.
 
-"snapgrid"      An example on how to use draggable"s "motionfcn"
-              argument so that a draggable object snaps to a grid.
+"snapgrid" - An example on how to use draggable"s "motionfcn" argument so that a
+    draggable object snaps to a grid.
 
-"polymove"      A polygon with draggable vertices is drawn;
-              draggable"s "motionfcn" argument is used to redraw the
-              polygon each time a vertex is moved.
+"polymove" - A polygon with draggable vertices is drawn; draggable"s "motionfcn"
+    argument is used to redraw the polygon each time a vertex is moved.
 
-"sliders"       A set of vertical sliders are created; a single call
-              to draggable is used for all sliders since they share
-              the same parameters. A "motionfcn" argument is used to
-              update the displayed slider values.
+"sliders" - A set of vertical sliders are created; a single call to draggable is
+    used for all sliders since they share the same parameters. A "motionfcn"
+    argument is used to update the displayed slider values.
 
 
 mode:
@@ -41,7 +37,7 @@ mode:
 "uiaxes" - Draw demo in uiaxes() and uifigure() objects.
 
 (C) Copyright 2004-2020
-François Bouffard
+FranÃ§ois Bouffard
 fbouffard@gmail.com
 
 (C) Copyright 2020
@@ -74,33 +70,32 @@ end
 
 switch lower(demotitle)
     case "crosshair"
-        % We first build the cross, using plot() with a NaN y-element so
-        % that it is non-continuous. The cross spans 0.2 units:
+        % We first build the cross, using plot() with a NaN y-element so that it
+        % is non-continuous. The cross spans 0.2 units:
         f = figure_fn();
         
         ax = axes_fn(f);
+        axis(ax, "equal");
         set(ax, "DataAspectRatio", [1 1 1], "Xlim", [0 1], "YLim", [0 1]);
         title(ax, "CROSSHAIR demo for draggable.m");
+        hold(ax, "on");
         
         p = plot(ax, [0.5 0.5 0.4 0.4 0.6], [0.4 0.6 NaN 0.5 0.5]);
         set(p, "Color", "k", "LineWidth", 2);
-        axis(ax, "equal");
         
-        % Creating a Draggable graphics object, using no movement constraint and limits
-        % corresponding to the axes limits, plus half the size of the
+        % Creating a draggable graphics object, using no movement constraint and
+        % limits corresponding to the axes limits, plus half the size of the
         % cross, so that its center always stays in the axes:
-        dg = Draggable(p);
+        dg = draggable(p);
         dg.xlim = [-0.1 1.1];
         dg.ylim = [-0.1 1.1];
     case "dragtest"
-        % This demo is used in Draggable development to test some of
-        % its features. Users interested in modifying Draggable.m should
-        % ensure that it works with this demo in order to verify backward
-        % compatibility.
+        % This demo is used in draggable development to test some of its
+        % features. Users interested in modifying draggable.m should ensure that
+        % it works with this demo in order to verify backward compatibility.
         
-        % Figure creation; we set up an initial WindowButtonDownFcn in
-        % order to test proper figure properties recovery after the
-        % object is dragged:
+        % Figure creation; we set up an initial WindowButtonDownFcn in order to
+        % test proper figure properties recovery after the object is dragged:
         f = figure_fn();
         wbd_fn = @(varargin)disp("Window Click!");
         set(f, "WindowButtonDownFcn", wbd_fn);
@@ -115,48 +110,47 @@ switch lower(demotitle)
         % The Green Rectangle tests default behavior
         greenrect = rectangle(ax, "Position", [0.7 0.1 0.1 0.2]);
         set(greenrect, "FaceColor", "g");
-        Draggable(greenrect);
+        draggable(greenrect);
         
-        % The Red Square tests right mouse button only, it shouldn't be draggable
-        % by left or middle mouse buttons.
+        % The Red Square tests right mouse button only, it shouldn't be
+        % draggable by left or middle mouse buttons.
         redsquare = rectangle(ax, "Position", [0.5 0.5 0.1 0.1]);
         set(redsquare, "FaceColor", "r");
-        dr = Draggable(redsquare);
-        dr.button = Draggable.RIGHT_BUTTON;
+        dr = draggable(redsquare);
+        dr.button = draggable.RIGHT_BUTTON;
         
-        % The Blue Rectangle will demonstrate a case in which the object cannot be
-        % dragged past the axis limits on the right, left and bottom.
+        % The Blue Rectangle will demonstrate a case in which the object cannot
+        % be dragged past the axis limits on the right, left and bottom.
         % However, the object can be dragged past the axis limit on top;
-        % furthermore, the object starts off-limits to the left, so that
-        % it can be dragged inside the limits, but cannot be dragged back
-        % off-limits afterwards.
+        % furthermore, the object starts off-limits to the left, so that it can
+        % be dragged inside the limits, but cannot be dragged back off-limits
+        % afterwards.
         bluerect = rectangle(ax, "Position", [0.2 0.4 0.2 0.2]);
         set(bluerect, "FaceColor", "b");
-        Draggable(bluerect, "none", [0.3 1 0 inf]);
+        draggable(bluerect, "none", [0.3 1 0 inf]);
         
         % The Magenta Line will demonstrate a line object being dragged
         % with horizontal movement constraint with default parameters.
         magline = line(ax, [0.7 0.9], [0.7 0.9]);
         set(magline, "Color", "m", "LineWidth", 2);
-        Draggable(magline, "h");
+        draggable(magline, "h");
         
-        % The Cyan Cross will demonstrate a plot object being dragged,
-        % its center always forced to be in the axes (as in the
-        % "crosshair" demo).
+        % The Cyan Cross will demonstrate a plot object being dragged, its
+        % center always forced to be in the axes (as in the "crosshair" demo).
         cyancross = plot(ax, [0.7 0.7 0.6 0.6 0.8], [0.4 0.6 NaN 0.5 0.5]);
         set(cyancross, "Color", "c", "LineWidth", 2);
-        Draggable(cyancross, "n", [0.2 1.1 -0.1 1.1]);
+        draggable(cyancross, "n", [0.2 1.1 -0.1 1.1]);
         
-        % The Yellow Triangle demonstrate a patch object being dragged
-        % with vertical movement constraint.
+        % The Yellow Triangle demonstrate a patch object being dragged with
+        % vertical movement constraint.
         yellowtri = patch(ax, [0.4 0.6 0.6], [0.1 0.1 0.2], "y");
-        Draggable(yellowtri, "v", [0.1 0.7]);
+        draggable(yellowtri, "v", [0.1 0.7]);
         
-        % The Gray Text demonstrate diagonal constraint operating on
-        % text objects. We test a negative, gentle slope crossing the
-        % horizontal range limits and a positive, large slope crossing
-        % the vertical range limits but in which the object will be
-        % nonetheless stopped by the leftmost limit.
+        % The Gray Text demonstrate diagonal constraint operating on text
+        % objects. We test a negative, gentle slope crossing the horizontal
+        % range limits and a positive, large slope crossing the vertical range
+        % limits but in which the object will be nonetheless stopped by the
+        % leftmost limit.
         
         % first text
         x1 = 0.4;
@@ -169,7 +163,7 @@ switch lower(demotitle)
         graytext1 = text(ax, x1, y1, "This is a test");
         set(graytext1, "Color", gray_1, "EdgeColor", gray_1, ...
             "BackgroundColor", "w", "LineStyle", ":")
-        Draggable(graytext1, "d", m1);
+        draggable(graytext1, "d", m1);
         
         % second text
         x2 = 0.7;
@@ -181,15 +175,16 @@ switch lower(demotitle)
         graytext2 = text(ax, x2, y2, "Another test");
         set(graytext2, "Color", gray_1, "EdgeColor", gray_1, ...
             "BackgroundColor", "w", "LineStyle", ":")
-        Draggable(graytext2, "d", m2);
+        draggable(graytext2, "d", m2);
     case "snapgrid"
-        % The "motionfcn" argument or "on_move_callback" argument/property of Draggable is used here to set up
-        % a grid on which the object movement is constrained.
+        % The "motionfcn" argument or "on_move_callback" argument/property of
+        % draggable is used here to set up a grid on which the object movement
+        % is constrained.
         %
-        % Furthermore, we use the function to display a "fleur" figure
-        % pointer while the object moves, and the figure's
-        % WindowButtonMotionFcn to display a standard "arrow" figure
-        % pointer while the mouse moves but the object is not dragged.
+        % Furthermore, we use the function to display a "fleur" figure pointer
+        % while the object moves, and the figure's WindowButtonMotionFcn to
+        % display a standard "arrow" figure pointer while the mouse moves but
+        % the object is not dragged.
         
         % First we set up the figure and axes.
         f = figure_fn();
@@ -203,18 +198,18 @@ switch lower(demotitle)
         title(ax, "SNAPGRID demo for draggable.m");
         hold(ax, "on");
         
-        % Now we create a cross which will snap on a grid with 1-unit
-        % spacing. This is done by giving the handle to the move_cross
-        % function (see below) as the "movefcn" argument of draggable.m.
+        % Now we create a cross which will snap on a grid with 1-unit spacing.
+        % This is done by giving the handle to the move_cross function (see
+        % below) as the "movefcn" argument of draggable.m.
         cross = plot(ax, [5 5 4.5 4.5 5.5], [4.5 5.5 NaN 5 5]);
         set(cross, "Color", "r", "LineWidth", 3);
-        dr = Draggable(cross, "n", [-0.5 10.5 -0.5 10.5]);
+        dr = draggable(cross, "n", [-0.5 10.5 -0.5 10.5]);
         dr.on_click_callback = @(g)cross_on_click(f, g);
         dr.on_move_callback = @cross_on_move;
         dr.on_release_callback = @(g)cross_on_release(f, g);
     case "polymove"
-        % The "motionfcn" argument of draggable.m is used here to
-        % redraw the polygon each time one of its vertex is moved.
+        % The "motionfcn" argument of draggable.m is used here to redraw the
+        % polygon each time one of its vertex is moved.
         
         % Setting up the figure and axes.
         f = figure_fn();
@@ -236,30 +231,37 @@ switch lower(demotitle)
         set(vv, "Marker", "o", "MarkerSize", 10, "MarkerFaceColor", "b", ...
             "MarkerEdgeColor", "none");
         % For invisible vertices:
-        %set(vv,"Marker","o","MarkerSize",10,"MarkerFaceColor","none", ...
+        % set(vv,"Marker","o","MarkerSize",10,"MarkerFaceColor","none", ...
         %     "MarkerEdgeColor","none");
         
-        % Saving the vertex vector as application data
-        % in the current axes (along with empty element p which will
-        % later hold the handle to the polygon itself)
+        % Saving the vertex vector as application data in the current axes
+        % (along with empty element p which will later hold the handle to the
+        % polygon itself)
         setappdata(ax, "vv", vv);
         setappdata(ax, "p", []);
         
-        % Calling draggable on each of the vertices, passing as an
-        % argument the handle to the redraw_poly fucntion (see below)
-        Draggable(v1,@(g)redraw_poly(ax, g));
-        Draggable(v2,@(g)redraw_poly(ax, g));
-        Draggable(v3,@(g)redraw_poly(ax, g));
-        Draggable(v4,@(g)redraw_poly(ax, g));
+        % Calling draggable on each of the vertices, passing as an argument the
+        % handle to the redraw_poly fucntion (see below)
+        draggable(v1,@(g)redraw_poly(ax, g));
+        draggable(v2,@(g)redraw_poly(ax, g));
+        draggable(v3,@(g)redraw_poly(ax, g));
+        draggable(v4,@(g)redraw_poly(ax, g));
         
-        % Finally we draw the polygon itself using the redraw_poly
-        % function, which can be found below
+        % Finally we draw the polygon itself using the redraw_poly function,
+        % which can be found below
         redraw_poly(ax);
     case "sliders"
         % Creates five sliders with different draggable parameters. Slider
         % values are displayed and updated in real time. Parameters are
         % initialized uniformly and then changed using custom subsref and
         % subsasgn.
+        
+        % Slider numbers:
+        %  1   2   3   4   5
+        % Slider 1 is left mouse button.
+        % Sliders 2 and 3 are middle mouse button.
+        % Slider 4 is right mouse button.
+        % Slider 5 is any mouse button.
         
         % Figure layout
         f = figure_fn();
@@ -285,24 +287,24 @@ switch lower(demotitle)
                 "FaceColor", [0 0 0.9]);
             % Storing the handle to the value text object for each slider
             setappdata(slider, "value_handle", value);
-            % This will be also used as the motionfcn argument. See
-            % the function definition later in the file.
+            % This will be also used as the motionfcn argument. See the function
+            % definition later in the file.
             update_value(slider);
-        
-            % Calling draggable on sliders with a vertical
-            % constraint. We must take into account the height of the sliders
-            % when setting range limits. We use update_value as the "motionfcn"
-            % argument, and add an "endfcn" argument which makes the slider
-            % and slider value blink when the user stops dragging.
-            draggables = [draggables Draggable(slider, "v", [0-h/2 1+h/2], ...
+            
+            % Calling draggable on sliders with a vertical constraint. We must
+            % take into account the height of the sliders when setting range
+            % limits. We use update_value as the "motionfcn" argument, and add
+            % an "endfcn" argument which makes the slider and slider value blink
+            % when the user stops dragging.
+            draggables = [draggables draggable(slider, "v", [0-h/2 1+h/2], ...
                 @update_value, "endfcn", @blink_value)]; %#ok<AGROW>
         end
         
         % subsasgn test
         draggables(1).FaceColor = [0.9 0.0 0.0];
-        draggables(1).button = Draggable.LEFT_BUTTON;
-        [draggables(2:3).button] = deal(Draggable.MIDDLE_BUTTON);
-        draggables(4).button = Draggable.RIGHT_BUTTON;
+        draggables(1).button = draggable.LEFT_BUTTON;
+        [draggables(2:3).button] = deal(draggable.MIDDLE_BUTTON);
+        draggables(4).button = draggable.RIGHT_BUTTON;
         
         % subsref test
         fprintf("draggables(1).FaceColor: [");
@@ -326,7 +328,7 @@ end
 
 function cross_on_click(figh, varargin)
 %{
-This function is passed as the "on_click_callback" property of a Draggable in
+This function is passed as the "on_click_callback" property of a draggable in
 the SNAPGRID demo.
 %}
 
@@ -342,8 +344,8 @@ end
 
 function cross_on_move(g)
 %{
-This function is passed as the "on_move_callback" property of a Draggable in
-the SNAPGRID demo.
+This function is passed as the "on_move_callback" property of a draggable in the
+SNAPGRID demo.
 %}
 
 % Then we retrieve the current cross position
@@ -363,7 +365,7 @@ end
 
 function cross_on_release(figh, varargin)
 %{
-This function is passed as the "on_release_callback" property of a Draggable in
+This function is passed as the "on_release_callback" property of a draggable in
 the SNAPGRID demo.
 %}
 
@@ -379,9 +381,9 @@ end
 
 function redraw_poly(axh, varargin)
 %{
-This function is passed as the "motionfcn" argument to draggable.m in
-the POLYMOVE demo. It recieves the handle to the object being dragged
-as its only argument, but it is not actually used in this function.
+This function is passed as the "motionfcn" argument to draggable.m in the
+POLYMOVE demo. It recieves the handle to the object being dragged as its only
+argument, but it is not actually used in this function.
 %}
 
 % Deleting the previous polygon
@@ -396,8 +398,8 @@ ydata = cell2mat(get(vv, "ydata"));
 p = plot(axh, [xdata.' xdata(1)],[ydata.' ydata(1)], "Color", "k");
 setappdata(axh, "p", p);
 
-% Putting the vertices on top of the polygon so that they are easier
-% to drag (or else, the polygone line get in the way)
+% Putting the vertices on top of the polygon so that they are easier to drag (or
+% else, the polygone line get in the way)
 set(axh, "Children", [vv p]);
 
 end
@@ -405,10 +407,10 @@ end
 
 function update_value(slider)
 %{
-This function is passed as the "motionfcn" argument to draggable.m in
-the SLIDERS demo. It recieves the handle to the slider being dragged
-as its only argument and uses that to retrieve the handle to a text
-object which was stored with the slider object.
+This function is passed as the "motionfcn" argument to draggable.m in the
+SLIDERS demo. It recieves the handle to the slider being dragged as its only
+argument and uses that to retrieve the handle to a text object which was stored
+with the slider object.
 %}
 
 value_handle = getappdata(slider,"value_handle");
@@ -421,8 +423,8 @@ end
 
 function blink_value(slider)
 %{
-This makes the displayed value blink; just to show usage of the
-"endfcn" argument.
+This makes the displayed value blink; just to show usage of the "endfcn"
+argument.
 %}
 
 value_handle = getappdata(slider,"value_handle");
@@ -435,4 +437,3 @@ set(value_handle,"FontWeight","normal");
 set(slider,"EdgeColor",initedgecolor,"FaceColor",initfacecolor);
 
 end
-
